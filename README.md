@@ -3,8 +3,15 @@ config.py
 ```
 TOKEN = "DISCORD BOT TOKEN"
 GUILD = "SERVER NAME"
+
 API_KEY = "OPENAI API KEY"
 DEFAULT = "You are a helpful assistant. Answer concisely unless if specified otherwise."
+MODEL = "gpt-4"
+
+CHANNELS = "path/to/channels.json"
+ERRORS = "path/to/errors.log"
+
+NO_GPT = False
 ```
 
 FeverGPT is released under the [0BSD License]().

@@ -12,11 +12,9 @@ intents.message_content = True
 client = commands.Bot(command_prefix="/", intents=intents)
 
 
-prompts_file = "prompts.txt"
 global channel_prompts
-if os.path.exists(prompts_file):
-    with open(prompts_file, "r") as f:
-        channel_prompts = json.load(f)
+with open(CHANNELS, 'a+') as f:
+    channel_prompts = json.load(f)
 
 
 @client.command(name="shutdown", brief="Shut ChatGPT down", help="Shut ChatGPT down.",
@@ -28,19 +26,19 @@ async def shutdown(ctx):
 @client.command(name="prompt", brief="Change the system prompt for this channel",
         help="Usage: /prompt [new_prompt]. Replace [new_prompt] with your desired system prompt.")
 async def change_prompt(ctx, *, new_prompt=None):
-    if new_prompt is None:
+    if not new_prompt:
         current_prompt = channel_prompts.get(ctx.channel.id, DEFAULT)
         await ctx.send(f"Current prompt: {current_prompt}")
     else:
         channel_prompts[ctx.channel.id] = new_prompt
-        with open(prompts_file, "w") as f:
+        with open(CHANNELS, "w") as f:
             json.dump(channel_prompts, f)
         await ctx.send(f"System prompt for this channel changed to: {new_prompt}")
 
 
 @client.event
 async def on_error(event, *args, **kwargs):
-    with open('err.log', 'a') as f:
+    with open(ERRORS, 'a+') as f:
         if event == 'on_message':
             f.write(f'Unhandled message: {exc_info()}\n')
         raise
@@ -74,8 +72,8 @@ async def on_message(message):
 
     system_prompt = channel_prompts.get(message.channel.id, DEFAULT)
 
-    if True:
-        await message.channel.send("Test mode enabled.")
+    if NO_GPT:
+        await message.channel.send("Test mode enabled (no GPT API calls).")
         return
 
     response = openai.ChatCompletion.create(
