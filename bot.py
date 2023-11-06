@@ -43,8 +43,7 @@ async def on_error(event, *args, **kwargs):
     with open('err.log', 'a') as f:
         if event == 'on_message':
             f.write(f'Unhandled message: {exc_info()}\n')
-        else:
-            raise
+        raise
 
 
 @client.event
@@ -64,13 +63,20 @@ async def on_message(message):
         return
     elif message.author == client.user:
         return
+    elif isinstance(message.channel, discord.channel.DMChannel):
+        pass
     elif message.channel.category_id != 1171050881626681364:
         return
-    elif message.author.id != 748021473070940163:
+    
+    if message.author.id != 748021473070940163:
         await message.channel.send("GPT grants not implemented for non-owner users yet.")
         return
 
     system_prompt = channel_prompts.get(message.channel.id, DEFAULT)
+
+    if True:
+        await message.channel.send("Test mode enabled.")
+        return
 
     response = openai.ChatCompletion.create(
       model=MODEL,
@@ -80,7 +86,6 @@ async def on_message(message):
         ]
     )
 
-    # Send the generated response
     await message.channel.send(response['choices'][0]['message']['content'])
 
 
