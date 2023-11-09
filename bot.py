@@ -25,7 +25,8 @@ valid_models = [
     'text-curie-001', 'text-babbage-001', 'text-ada-001', 'text-davinci-003', 'text-davinci-002', 'code-davinci-002',
     'davinci', 'curie', 'babbage', 'ada', 'babbage-002', 'davinci-002', 'gpt-3.5-turbo', 'gpt-3.5-turbo-1106',
     'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-instruct', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo-16k-0613', 'gpt-3.5-turbo-0301',
-    'text-moderation-latest', 'text-embedding-ada-002'
+    'text-moderation-latest', 'text-embedding-ada-002', 'gpt-4-1106-preview', 'gpt-4-32k', 'gpt-4-0613', 'gpt-4-32k-0613',
+    'gpt-4-0314', 'gpt-4-32k-0314', 'gpt-4'
 ]
 
 @client.command(name="shutdown", brief="Shut ChatGPT down", help="Shut ChatGPT down.",
@@ -39,7 +40,6 @@ async def shutdown(ctx):
 async def setting(ctx, setting=None, *, new_value=None):
     if not setting:
         await ctx.send("Usage: `/setting prompt [new_prompt]` or `/setting model [new_model]` or `/setting reset`")
-        await ctx.send()
         return
 
     if setting == "reset":
@@ -128,7 +128,7 @@ async def on_message(message):
         msg = message.content.replace('--plugins', '').replace('--fallback', '')
         # plugins mode default for gpt4, --plugins override for gpt3
         if BACKEND_PATH and "--fallback" not in message.content:
-            backend.MARKDOWN_MODS = channel_data.get(message.channel.id, DEFAULT)
+            backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
             if "gpt-4" in model or "--plugins" in message.content:
                 try:
                     await send(backend.run(msg))

@@ -46,7 +46,7 @@ If you are using any GPT4 model, the plugins will be enabled by default if `--fa
 
 - `/setting` resets the channel's settings
 - `/setting <model/prompt>` prints the channel's model/prompt
-- `/setting model <model_name>` changes the model to gpt-4, gpt-3.5turbo, etc.
+- `/setting model <model_name>` changes the model to `gpt-4`, `gpt-3.5-turbo`, etc.
 - `/setting prompt <system_prompt>` changes the system prompt
 
 
