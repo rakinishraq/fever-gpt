@@ -8,10 +8,12 @@ The summary below is from [tl;drLegal](https://www.tldrlegal.com/license/bsd-0-c
 ## Plugins
 
 This tool uses a lightly modified version of [andylokandy's GPT4 CLI tool](https://github.com/andylokandy/gpt-4-search) as a temporary backend, which is released under an [MIT license](https://github.com/rakinishraq/gpt-4-search/blob/main/LICENSE).
+
+**To download and use my fork,**  go to the [repository](https://github.com/rakinishraq/gpt-4-search) and follow the instructions to install. Then, enter the path your `gpt_4_search.py` file in `config.py`.
+
 - [EvAnhaodong's fork](https://github.com/EvAnhaodong/gpt-4-search) was considered but was too bloated for a, likely hosted in a low-performance container, Discord bot. Like their fork, however, end-to-end testing will be implemented before adding additional functionality.
-- From my testing, this backend was meant to only work on Linux, since the readline module is Linux-only and commonly answering "I don't know" without it mostly for Python responses. As a temporary solution, I removed the import line but a plugin-free backend is also provided (leave BACKEND_PATH as "" to only use that).
+- From my testing, this backend was meant to only work on Linux, since the readline module is Linux-only and commonly answering "I don't know" without it mostly for Python responses. As a temporary solution, I removed the import line but a plugin-free backend is also provided.
 - This backend also seems to have dubious support for models other than GPT4. While testing with GPT3.5-turbo, it outputs a parsing error when trying to summarize a Google result and output it. Thus, this bot only works with GPT4 for now. The scaffolding is in place to support other models as soon as possible.
-- **To download and use my fork,**  go to the [repository](https://github.com/rakinishraq/gpt-4-search) and follow the instructions to install. Then, enter the path your `gpt_4_search.py` file in `config.py`.
 
 The system prompt for the plugins system:
 > You are an _[sic]_ helpful and kind assistant to answer questions that can use tools to interact with real world and get access to the latest information. You can call one of the following functions:
@@ -62,8 +64,11 @@ GUILD = []
 # if you want to lock to certain users, enter user IDs
 USER_ID = []
 
+# leave empty if you want to use plugin-free
 BACKEND_PATH = "C:/Path/To/gpt_4_search.py"
+# OpenAI API key from https://platform.openai.com/api-keys
 API_KEY = "OPENAI API KEY"
+# default system prompt (prompt prefix if plugins version) and model
 DEFAULT = ["You are a Discord bot for GPT named FeverGPT.", "gpt-4"]
 
 CHANNELS = "path/to/channels.json"

@@ -21,6 +21,12 @@ global channel_data
 with open(CHANNELS, 'a+') as f:
     channel_data = json.load(f) if f.read() else {}
 
+valid_models = [
+    'text-curie-001', 'text-babbage-001', 'text-ada-001', 'text-davinci-003', 'text-davinci-002', 'code-davinci-002',
+    'davinci', 'curie', 'babbage', 'ada', 'babbage-002', 'davinci-002', 'gpt-3.5-turbo', 'gpt-3.5-turbo-1106',
+    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-instruct', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo-16k-0613', 'gpt-3.5-turbo-0301',
+    'text-moderation-latest', 'text-embedding-ada-002'
+]
 
 @client.command(name="shutdown", brief="Shut ChatGPT down", help="Shut ChatGPT down.",
         description="Open the Pod bay doors, please, HAL.")
@@ -30,7 +36,12 @@ async def shutdown(ctx):
 
 @client.command(name="setting", brief="Change the system prompt and/or model for this channel",
         help="Usage: /setting prompt [new_prompt] or /setting model [new_model] or /setting reset.")
-async def setting(ctx, setting, *, new_value=None):
+async def setting(ctx, setting=None, *, new_value=None):
+    if not setting:
+        await ctx.send("Usage: `/setting prompt [new_prompt]` or `/setting model [new_model]` or `/setting reset`")
+        await ctx.send()
+        return
+
     if setting == "reset":
         await ctx.send("Defaults applied to this channel.\nModel: %s\nPrompt: %s"%DEFAULT)
         return
@@ -43,6 +54,10 @@ async def setting(ctx, setting, *, new_value=None):
         current_value = channel_data.get(ctx.channel.id, DEFAULT)[index]
         await ctx.send(f"Current channel {setting}: {current_value}")
     else:
+        if setting == "model" and new_value not in valid_models:
+            await ctx.send("Warning: this model wasn't recognized but will be applied. "
+                           f"Recognized models:\n`{', '.join(valid_models)}`")
+
         if ctx.channel.id not in channel_data:
             channel_data[ctx.channel.id] = DEFAULT
         channel_data[ctx.channel.id][index] = new_value
