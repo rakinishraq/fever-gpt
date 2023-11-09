@@ -69,14 +69,18 @@ async def on_ready():
 async def on_message(message):
     send = message.channel.send
 
+    # ignore system messages
+    if message.type != discord.MessageType.default:
+        return
     # process slash commands
-    if message.content.startswith("/"):
+    elif message.content.startswith("/"):
         await client.process_commands(message)
         return
     # prevent self-reply loop
     elif message.author == client.user:
         return
-    elif GUILD:
+    
+    if GUILD:
         # check if DM user is in any approved guild
         if isinstance(message.channel, discord.channel.DMChannel):
             for guild_id in GUILD:
@@ -84,7 +88,7 @@ async def on_message(message):
                     break
             else:
                 return
-    elif CATEGORY:
+    if CATEGORY:
         # lock to threads in approved category
         if isinstance(message.channel, discord.channel.Thread):
             if not message.channel.parent.category_id in CATEGORY:
@@ -92,13 +96,15 @@ async def on_message(message):
         # lock to text channels if approved category
         elif not message.channel.category_id in CATEGORY:
             return
+
     # lock to approved user
     if USER_ID and not message.author.id in USER_ID:
-        await send("GPT grants not implemented for non-owner users yet. "+message.author.id)
+        await send("Grant system not implemented yet. "+message.author.id)
         return
 
     system_prompt, model = channel_data.get(message.channel.id, DEFAULT)
-
+    
+    # dry-run
     if NO_GPT:
         await send("Test mode enabled (no GPT API calls). Model: "+model)
         return
