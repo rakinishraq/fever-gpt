@@ -49,6 +49,8 @@ If you are using any GPT4 model, the plugins will be enabled by default if `--fa
 - `/setting model <model_name>` changes the model to `gpt-4`, `gpt-3.5-turbo`, etc.
 - `/setting prompt <system_prompt>` changes the system prompt
 
+Then, just talk in any of the ChatGPT-enabled channels/threads and FeverGPT will reply. If you'd like to send a message in that context without a response, prepend it with a backslash:
+- `/ This sentence will be ignored by the bot.`
 
 ## Configuration
 
@@ -76,3 +78,6 @@ ERRORS = "path/to/errors.log"
 
 NO_GPT = False
 ```
+
+Note: This backend is not optimized for code generation and should not be used for this purpose. The Python functionality is designed for programmatically solving mathematical problems or similar tasks, as Low-Level Models (LLMs) may not provide the required precision for these operations.
+

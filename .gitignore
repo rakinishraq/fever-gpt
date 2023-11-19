@@ -1,6 +1,6 @@
 .venv
 config.py
-**/prompts.json
+**/channels.json
 data/
 
 # Byte-compiled / optimized / DLL files
