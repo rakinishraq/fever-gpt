@@ -81,5 +81,4 @@ ERRORS = "path/to/errors.log"
 NO_GPT = False
 ```
 
-Note: This backend is not optimized for code generation and should not be used for this purpose. The Python functionality is designed for programmatically solving mathematical problems or similar tasks, as Low-Level Models (LLMs) may not provide the required precision for these operations.
-
+Note: This backend is not optimized for code generation and should not be used for this purpose. The Python functionality is designed for programmatically solving mathematical problems or similar tasks, as GPT may not provide the required precision for these operations.
