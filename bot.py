@@ -7,6 +7,7 @@ from sys import exc_info
 import openai
 import json
 import importlib.util
+import subprocess
 
 if BACKEND_PATH:
     spec = importlib.util.spec_from_file_location("module.name", BACKEND_PATH)
@@ -124,30 +125,37 @@ async def on_message(message):
         await send("Test mode enabled (no GPT API calls). Model: "+model)
         return
 
-    async with message.channel.typing():
-        msg = message.content.replace('--plugins', '').replace('--fallback', '')
-        # plugins mode default for gpt4, --plugins override for gpt3
-        if BACKEND_PATH and "--fallback" not in message.content:
-            backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
-            if "gpt-4" in model or "--plugins" in message.content:
-                try:
-                    await send(backend.run(msg))
-                    if backend.references:
-                        await send("\n\n**References:**")
-                        await send(backend.show_references())
-                    return
-                except Exception as e:
-                    await send(f"`Error: {str(e)}`\nRetrying without plugin:")
 
-        # fallback
-        response = openai.ChatCompletion.create(
-        model=model,
-        messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": msg},
-            ]
-        )
-        await send(response['choices'][0]['message']['content'])
+    async with message.channel.typing():
+        if message.attachments and SCANNER_PATH:
+            # use scanner if attachment found
+            file_url = message.attachments[0].url
+            result = subprocess.run([SCANNER_PATH, file_url], capture_output=True, text=True)
+            await message.channel.send(result.stdout)
+        else:
+            msg = message.content.replace('--plugins', '').replace('--fallback', '')
+            # plugins mode default for gpt4, --plugins override for gpt3
+            if BACKEND_PATH and "--fallback" not in message.content:
+                backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
+                if "gpt-4" in model or "--plugins" in message.content:
+                    try:
+                        await send(backend.run(msg))
+                        if backend.references:
+                            await send("\n\n**References:**")
+                            await send(backend.show_references())
+                        return
+                    except Exception as e:
+                        await send(f"`Error: {str(e)}`\nRetrying without plugin:")
+
+            # fallback
+            response = openai.ChatCompletion.create(
+            model=model,
+            messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": msg},
+                ]
+            )
+            await send(response['choices'][0]['message']['content'])
 
 
 if __name__ == "__main__":
