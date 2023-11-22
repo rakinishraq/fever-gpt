@@ -135,11 +135,24 @@ async def on_message(message):
         # use scanner if attachment found
         if (message.attachments or message.content.startswith("http")):
             if not SCANNER_PATH:
-                print("Scanner not provided, skipping...")
+                await message.channel.send("Scanner not provided.")
                 return
-            file_url = message.attachments[0].url
-            result = subprocess.run([SCANNER_PATH, file_url], capture_output=True, text=True)
-            await message.channel.send(result.stdout)
+            
+            file_url = message.content
+            if message.attachments:
+                file_url = message.attachments[0].url
+
+            # update env with user changes during runtime
+            env = os.environ.copy()
+            env["OPENAI_API_KEY"] = API_KEY
+            result = subprocess.run(["powershell", "-File", SCANNER_PATH, file_url],
+                                    capture_output=True, text=True, env=env)
+            
+            txt = result.stdout.splitlines()[-2].split()[-1]
+            with open(txt) as txt:
+                for line in txt.read().splitlines():
+                    if line:
+                        await message.channel.send(line)
             return
 
         msg = message.content.replace('--plugins', '').replace('--fallback', '')

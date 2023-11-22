@@ -52,6 +52,9 @@ If you are using any GPT4 model, the plugins will be enabled by default if `--fa
 Then, just talk in any of the ChatGPT-enabled channels/threads and FeverGPT will reply. If you'd like to send a message in that context without a response, prepend it with a backslash:
 - `/ This sentence will be ignored by the bot.`
 
+**Scanner:** If you upload and send a PDF file or send a website link directly, a section-by-section summary will be replied.
+**Backend:** Google searching and code synthesis will be used to answer your internet-based or math questions, for example.
+
 ## Configuration
 
 Create a `config.py` file in the same directory as bot.py and open it with any text editor, like Notepad. Then, enable Developer Mode in Discord and enter the following information:
