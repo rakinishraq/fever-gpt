@@ -4,15 +4,20 @@ import discord
 from discord.ext import commands
 from config import *
 from sys import exc_info
-import openai
+from openai import AsyncOpenAI
 import json
 import importlib.util
 import subprocess
 
+openai = AsyncOpenAI(api_key=API_KEY)
 if BACKEND_PATH:
-    spec = importlib.util.spec_from_file_location("module.name", BACKEND_PATH)
-    backend = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(backend)
+    try:
+        spec = importlib.util.spec_from_file_location("module.name", BACKEND_PATH)
+        backend = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(backend)
+    except Exception as e:
+        print(f"Backend not loaded ({e}).")
+        BACKEND_PATH = ""
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -127,37 +132,40 @@ async def on_message(message):
 
 
     async with message.channel.typing():
-        if message.attachments and SCANNER_PATH:
-            # use scanner if attachment found
+        # use scanner if attachment found
+        if (message.attachments or message.content.startswith("http")):
+            if not SCANNER_PATH:
+                print("Scanner not provided, skipping...")
+                return
             file_url = message.attachments[0].url
             result = subprocess.run([SCANNER_PATH, file_url], capture_output=True, text=True)
             await message.channel.send(result.stdout)
-        else:
-            msg = message.content.replace('--plugins', '').replace('--fallback', '')
-            # plugins mode default for gpt4, --plugins override for gpt3
-            if BACKEND_PATH and "--fallback" not in message.content:
-                backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
-                if "gpt-4" in model or "--plugins" in message.content:
-                    try:
-                        await send(backend.run(msg))
-                        if backend.references:
-                            await send("\n\n**References:**")
-                            await send(backend.show_references())
-                        return
-                    except Exception as e:
-                        await send(f"`Error: {str(e)}`\nRetrying without plugin:")
+            return
 
-            # fallback
-            response = openai.ChatCompletion.create(
-            model=model,
-            messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": msg},
-                ]
-            )
-            await send(response['choices'][0]['message']['content'])
+        msg = message.content.replace('--plugins', '').replace('--fallback', '')
+        # plugins mode default for gpt4, --plugins override for gpt3
+        if BACKEND_PATH and "--fallback" not in message.content:
+            backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
+            if "gpt-4" in model or "--plugins" in message.content:
+                try:
+                    await send(backend.run(msg))
+                    if backend.references:
+                        await send("\n\n**References:**")
+                        await send(backend.show_references())
+                    return
+                except Exception as e:
+                    await send(f"`Error: {str(e)}`\nRetrying without plugin:")
+
+        # fallback
+        response = await openai.chat.completions.create(
+        model=model,
+        messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": msg},
+            ]
+        )
+        await send(response.choices[0].message.content)
 
 
 if __name__ == "__main__":
-    openai.api_key = API_KEY
     client.run(TOKEN)

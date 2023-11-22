@@ -68,7 +68,7 @@ USER_ID = []
 
 # leave empty if you want to use plugin-free
 BACKEND_PATH = "C:/Path/To/gpt_4_search.py"
-# document scanner
+# document scanning support
 SCANNER_PATH = "C:/Path/To/summarize.py"
 # OpenAI API key from https://platform.openai.com/api-keys
 API_KEY = "OPENAI API KEY"

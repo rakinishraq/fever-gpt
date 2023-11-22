@@ -1,3 +1,5 @@
+*.code-workspace
+
 .venv
 config.py
 **/channels.json
