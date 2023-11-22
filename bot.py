@@ -10,7 +10,7 @@ import importlib.util
 import subprocess
 
 openai = AsyncOpenAI(api_key=API_KEY)
-if BACKEND_PATH:
+if BACKEND_PATH and BACKEND_IMPORTED:
     try:
         spec = importlib.util.spec_from_file_location("module.name", BACKEND_PATH)
         backend = importlib.util.module_from_spec(spec)
@@ -158,16 +158,29 @@ async def on_message(message):
         msg = message.content.replace('--plugins', '').replace('--fallback', '')
         # plugins mode default for gpt4, --plugins override for gpt3
         if BACKEND_PATH and "--fallback" not in message.content:
-            backend.FEVER = channel_data.get(message.channel.id, DEFAULT)
-            if "gpt-4" in model or "--plugins" in message.content:
-                try:
-                    await send(backend.run(msg))
-                    if backend.references:
-                        await send("\n\n**References:**")
-                        await send(backend.show_references())
-                    return
-                except Exception as e:
-                    await send(f"`Error: {str(e)}`\nRetrying without plugin:")
+            system = channel_data.get(message.channel.id, DEFAULT)
+            if BACKEND_IMPORTED:
+                backend.FEVER = system
+                if "gpt-4" in model or "--plugins" in message.content:
+                    try:
+                        await send(backend.run(msg))
+                        if backend.references:
+                            await send("\n\n**References:**")
+                            await send(backend.show_references())
+                        return
+                    except Exception as e:
+                        await send(f"`Error: {str(e)}`\nRetrying without plugin:")
+                return
+
+            result = subprocess.run(["powershell", "-File", BACKEND_PATH,
+                                     f"'{msg}'", f"'{system[0]}'", f"'{system[1]}"],
+                                    capture_output=True, text=True)
+            if (result := result.stdout.strip()) != "FALLBACK":
+                await message.channel.send(result)
+                return
+            await message.channel.send("Retrying with fallback:")
+
+            
 
         # fallback
         response = await openai.chat.completions.create(
