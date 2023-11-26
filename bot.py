@@ -8,6 +8,7 @@ from openai import AsyncOpenAI
 import json
 import importlib.util
 import subprocess
+import re
 
 openai = AsyncOpenAI(api_key=API_KEY)
 if BACKEND_PATH and BACKEND_IMPORTED:
@@ -133,20 +134,32 @@ async def on_message(message):
 
     async with message.channel.typing():
         # use scanner if attachment found
-        if (message.attachments or message.content.startswith("http")):
+        has_link = re.search(r'http\S+', message.content) is not None  # Check for a link anywhere in message.content
+        if (message.attachments or has_link):
             if not SCANNER_PATH:
                 await message.channel.send("Scanner not provided.")
                 return
             
-            file_url = message.content
             if message.attachments:
                 file_url = message.attachments[0].url
+            elif has_link:
+                # Find the hyperlink
+                link_match = re.search(r'http\S+', message.content)
+                if link_match:
+                    file_url = link_match.group()
+                    # Remove the hyperlink from message.content
+                    message.content = re.sub(r'http\S+', '', message.content).strip()
+                else:
+                    # Handle the case where no hyperlink was found
+                    file_url = "No link found"
 
             # update env with user changes during runtime
             env = os.environ.copy()
             env["OPENAI_API_KEY"] = API_KEY
-            result = subprocess.run(["powershell", "-File", SCANNER_PATH, file_url],
+            print(SCANNER_PATH, file_url, f"'{message.content}'")
+            result = subprocess.run(["powershell", "-File", SCANNER_PATH, file_url, f"'{message.content}'"],
                                     capture_output=True, text=True, env=env)
+            print(result.stdout)
             
             txt = result.stdout.splitlines()[-2].split()[-1]
             with open(txt) as txt:

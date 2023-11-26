@@ -31,13 +31,10 @@ The user-inputted system prompt would be added before everything else.
 Another feature that will be implemented is using files (plaintext and PDFs/DOCX/etc.) as context, leveraging Discord's file upload feature and support for direct links and a common filehosting service like Google Drive. The free user filesize limit shouldn't be an issue in this context, however.
 Lastly, a streaming solution will be implemented.
 
-- user-specific api keys
-- document input
-- website link input
-- streaming
 - code execution security
 - add grants
-- direct download support
+- user-specific api keys
+- streaming
 - end-to-end testing
 
 ## Usage
