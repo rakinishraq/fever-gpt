@@ -134,7 +134,7 @@ async def on_message(message):
 
     async with message.channel.typing():
         # use scanner if attachment found
-        has_link = re.search(r'http\S+', message.content) is not None  # Check for a link anywhere in message.content
+        has_link = re.search(r'http\S+', message.content) is not None
         if (message.attachments or has_link):
             if not SCANNER_PATH:
                 await message.channel.send("Scanner not provided.")
@@ -143,15 +143,11 @@ async def on_message(message):
             if message.attachments:
                 file_url = message.attachments[0].url
             elif has_link:
-                # Find the hyperlink
+                # find link in msg
                 link_match = re.search(r'http\S+', message.content)
-                if link_match:
-                    file_url = link_match.group()
-                    # Remove the hyperlink from message.content
-                    message.content = re.sub(r'http\S+', '', message.content).strip()
-                else:
-                    # Handle the case where no hyperlink was found
-                    file_url = "No link found"
+                file_url = link_match.group()
+                # remove link from message
+                message.content = re.sub(r'http\S+', '', message.content).strip()
 
             # update env with user changes during runtime
             env = os.environ.copy()
@@ -161,7 +157,7 @@ async def on_message(message):
                                     capture_output=True, text=True, env=env)
             print(result.stdout)
             
-            txt = result.stdout.splitlines()[-2].split()[-1]
+            txt = result.stdout.strip().splitlines()[-1]
             with open(txt) as txt:
                 for line in txt.read().splitlines():
                     if line:
