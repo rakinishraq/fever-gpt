@@ -157,12 +157,15 @@ async def on_message(message):
                                     capture_output=True, text=True, env=env)
             print(result.stdout)
             
-            txt = result.stdout.strip().splitlines()[-1]
+            # get summary            
+            txt = result.stdout.strip().splitlines()[3]+".overall_summary.txt"
             with open(txt) as txt:
-                for line in txt.read().splitlines():
-                    if line:
-                        await message.channel.send(line)
-            return
+                txt = txt.read()
+            
+            # debug send summary
+            for line in txt.splitlines():
+                if line:
+                    send(summary := line)
 
         msg = message.content.replace('--plugins', '').replace('--fallback', '')
         # plugins mode default for gpt4, --plugins override for gpt3
