@@ -54,33 +54,7 @@ Then, just talk in any of the ChatGPT-enabled channels/threads and FeverGPT will
 
 ## Configuration
 
-Create a `config.py` file in the same directory as bot.py and open it with any text editor, like Notepad. Then, enable Developer Mode in Discord and enter the following information:
-
-```
-# if you want to lock bot to channel categories, enter category IDs
-CATEGORY = []
-# [YourBot > Bot > Token] in discord.com/developers/applications
-TOKEN = "DISCORD BOT TOKEN"
-# if you want to lock bot to server and their members, enter server IDs
-GUILD = []
-# if you want to lock to certain users, enter user IDs
-USER_ID = []
-
-# leave empty if you want to use plugin-free
-BACKEND_PATH = "C:/Path/To/gpt_4_search.py"
-# use imported version if using the same venv
-BACKEND_IMPORTED = False
-# document scanning support
-SCANNER_PATH = "C:/Path/To/summarize.py"
-# OpenAI API key from https://platform.openai.com/api-keys
-API_KEY = "OPENAI API KEY"
-# default system prompt (prompt prefix if plugins version) and model
-DEFAULT = ["You are a Discord bot for GPT named FeverGPT.", "gpt-4"]
-
-CHANNELS = "path/to/channels.json"
-ERRORS = "path/to/errors.log"
-
-NO_GPT = False
-```
+Make a folder named data in the project folder.
+Rename to `config.py.example` to `config.py` and open it with any text editor, like Notepad. Then, enable Developer Mode in Discord and enter the information.
 
 Note: This backend is not optimized for code generation and should not be used for this purpose. The Python functionality is designed for programmatically solving mathematical problems or similar tasks, as GPT may not provide the required precision for these operations.
