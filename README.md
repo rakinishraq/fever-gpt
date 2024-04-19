@@ -58,3 +58,14 @@ Make a folder named data in the project folder.
 Rename to `config.py.example` to `config.py` and open it with any text editor, like Notepad. Then, enable Developer Mode in Discord and enter the information.
 
 Note: This backend is not optimized for code generation and should not be used for this purpose. The Python functionality is designed for programmatically solving mathematical problems or similar tasks, as GPT may not provide the required precision for these operations.
+
+Adding a new user-level bot setting: 
+- Add config command to setting()
+- Add default val to DEFAULT{}
+- Add functionality to maybe on_message()
+- Add to # get channel settings
+- Add to COMMANDS
+
+retain empty channel data fields not set as default to differentiate when changing defaults
+stop checking messages if reached first
+make plugin/fallback flags into channel data and vice versa
